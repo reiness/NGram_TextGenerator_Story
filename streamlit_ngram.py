@@ -130,26 +130,26 @@ def create_ngram_model(n, path):
 def main():
     st.title("Ngram Text Generator")
 
-    user_input_ngram = st.number_input("Insert the number of n-grams :", key="ngram", step=1, value=3)
+    # user_input_ngram = st.number_input("Insert the number of n-grams :", key="ngram", step=1, value=3)
 
     st.divider()
-    if user_input_ngram:
-        m = create_ngram_model({user_input_ngram}, 'output.txt')
 
-        user_input_sentence = st.text_input(
-            "Enter the initial sentence :", key="sentence")
+    m = create_ngram_model(6, 'output.txt')
 
-        user_input_len_text = st.number_input(
-            "Enter how many words are generated", key="length", step=1,value=25)
+    user_input_sentence = st.text_input(
+        "Enter the initial sentence :", key="sentence")
 
-        if st.button("Generate"):
-            generated_text = m.generate_text(user_input_len_text)
+    user_input_len_text = st.number_input(
+        "Enter how many words are generated", key="length", step=1,value=25)
 
-            st.divider()
+    if st.button("Generate"):
+        generated_text = m.generate_text(user_input_len_text)
 
-            st.markdown('Output :')
+        st.divider()
 
-            st.success(f'{user_input_sentence} {generated_text}')
+        st.markdown('Output :')
+
+        st.success(f'{user_input_sentence} {generated_text}')
 
 
 if __name__ == "__main__":
