@@ -124,27 +124,29 @@ def create_ngram_model(n, path):
 def main():
     st.title("Ngram Text Generator")
 
-    user_input_ngram = st.number_input("Insert the number of n-grams :",key=int,step=1,value=3)
+    user_input_ngram = st.number_input("Insert the number of n-grams :", key="ngram", step=1, value=3)
 
     st.divider()
 
-    m = create_ngram_model({user_input_ngram}, 'output.txt')
+    if user_input_ngram:
+        m = create_ngram_model(user_input_ngram, 'output.txt')
 
-    user_input_sentence = st.text_input("Enter the initial sentence :",key=int,step=1)
-    
-    st.divider()
+        user_input_sentence = st.text_input("Enter the initial sentence :", key="sentence")
 
-    user_input_len_text = st.number_input("Enter how many words are generated",key=int,step=1)
+        st.divider()
 
-    st.divider()
-    
-    generated_text = m.generate_text({user_input_len_text})  # Generate 20 tokens based on the user input
+        user_input_len_text = st.number_input("Enter how many words are generated", key="length", step=1)
 
-    user_input_with_underscore = f'<u>{user_input_sentence}</u>'
+        st.divider()
 
-    st.write(f'Generated text: {user_input_with_underscore} {generated_text}')
+        if user_input_sentence and user_input_len_text:
+            generated_text = m.generate_text(user_input_len_text)
 
-    st.divider()
+            user_input_with_underscore = f'<u>{user_input_sentence}</u>'
+
+            st.write(f'Generated text: {user_input_with_underscore} {generated_text}')
+
+            st.divider()
 
 if __name__ == "__main__":
     main()
