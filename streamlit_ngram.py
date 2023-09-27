@@ -5,6 +5,8 @@ import time
 from typing import List
 
 # ideally we would use some smart text tokenizer, but for simplicity use this one
+
+
 def tokenize(text: str) -> List[str]:
     """
     :param text: Takes input sentence
@@ -14,6 +16,7 @@ def tokenize(text: str) -> List[str]:
         text = text.replace(punct, ' '+punct+' ')
     t = text.split()
     return t
+
 
 def get_ngrams(n: int, tokens: list) -> list:
     """
@@ -25,7 +28,8 @@ def get_ngrams(n: int, tokens: list) -> list:
     """
     # tokens.append('<END>')
     tokens = (n-1)*['<START>']+tokens
-    l = [(tuple([tokens[i-p-1] for p in reversed(range(n-1))]), tokens[i]) for i in range(n-1, len(tokens))]
+    l = [(tuple([tokens[i-p-1] for p in reversed(range(n-1))]), tokens[i])
+         for i in range(n-1, len(tokens))]
     return l
 
 
@@ -110,6 +114,7 @@ class NgramModel(object):
                     context_queue.append(obj)
         return ' '.join(result)
 
+
 def create_ngram_model(n, path):
     m = NgramModel(n)
     with open(path, 'r', encoding='utf-8') as f:
@@ -121,6 +126,7 @@ def create_ngram_model(n, path):
             m.update(sentence)
     return m
 
+
 def main():
     st.title("Ngram Text Generator")
 
@@ -130,9 +136,11 @@ def main():
 
     m = create_ngram_model(6, 'output.txt')
 
-    user_input_sentence = st.text_input("Enter the initial sentence :", key="sentence")
+    user_input_sentence = st.text_input(
+        "Enter the initial sentence :", key="sentence")
 
-    user_input_len_text = st.number_input("Enter how many words are generated", key="length", step=1)
+    user_input_len_text = st.number_input(
+        "Enter how many words are generated", key="length", step=1)
 
     st.divider()
 
@@ -145,7 +153,6 @@ def main():
 
         st.success(f'{user_input_sentence} {generated_text}')
 
-            
 
 if __name__ == "__main__":
     main()
