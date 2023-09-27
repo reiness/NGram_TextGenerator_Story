@@ -129,25 +129,23 @@ def main():
     st.divider()
 
     if user_input_ngram:
-        # start = time.time()
+        m = create_ngram_model({user_input_ngram}, 'output.txt')
 
-
-        # st.write(f'Language Model creating time: {time.time() - start:.2f} seconds')
-    
         user_input_sentence = st.text_input("Enter the initial sentence :",key=int,step=1)
+        
+        st.divider()
+
+        user_input_len_text = st.number_input("Enter how many words are generated",key=int,step=1)
 
         st.divider()
 
-        if user_input_sentence:
-            m = create_ngram_model({user_input_ngram}, 'output.txt')
+        if user_input_sentence and user_input_len_text:
             
-            user_input_len_text = st.number_input("Enter how many words are generated",key=int,step=1)
-
-            st.divider()
 
             generated_text = m.generate_text({user_input_len_text})  # Generate 20 tokens based on the user input
 
             user_input_with_underscore = f'<u>{user_input_sentence}</u>'
+            
             st.write(f'Generated text: {user_input_with_underscore} {generated_text}')
 
             st.divider()
