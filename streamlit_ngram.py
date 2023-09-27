@@ -125,7 +125,7 @@ def main():
     st.title("Ngram Text Generator")
 
     user_input_ngram = st.number_input("Insert the number of n-grams :",key=int,step=1,value=3)
-    m = create_ngram_model({user_input_ngram}, 'output.txt')
+
     st.divider()
 
     if user_input_ngram:
@@ -139,6 +139,8 @@ def main():
         st.divider()
 
         if user_input_sentence:
+            m = create_ngram_model({user_input_ngram}, 'output.txt')
+            
             user_input_len_text = st.number_input("Enter how many words are generated",key=int,step=1)
 
             st.divider()
