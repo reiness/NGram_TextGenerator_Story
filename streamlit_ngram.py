@@ -130,11 +130,11 @@ def create_ngram_model(n, path):
 def main():
     st.title("Ngram Text Generator")
 
-    # user_input_ngram = st.number_input("Insert the number of n-grams :", key="ngram", step=1, value=3)
+    user_input_ngram = st.number_input("Insert the number of n-grams :", key="ngram", step=1, value=3)
 
     st.divider()
 
-    m = create_ngram_model(6, 'output.txt')
+    m = create_ngram_model({user_input_ngram}, 'output.txt')
 
     user_input_sentence = st.text_input(
         "Enter the initial sentence :", key="sentence")
