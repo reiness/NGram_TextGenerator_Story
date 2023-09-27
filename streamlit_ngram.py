@@ -140,16 +140,14 @@ def main():
         "Enter the initial sentence :", key="sentence")
 
     user_input_len_text = st.number_input(
-        "Enter how many words are generated", key="length", step=1)
-
-    st.divider()
+        "Enter how many words are generated", key="length", step=1,value=25)
 
     if st.button("Generate"):
         generated_text = m.generate_text(user_input_len_text)
 
         st.divider()
 
-        st.markdown('Generated text:')
+        st.markdown('Output :')
 
         st.success(f'{user_input_sentence} {generated_text}')
 
