@@ -139,13 +139,15 @@ def main():
     st.divider()
 
     if user_input_sentence and user_input_len_text:
-        generated_text = m.generate_text(user_input_len_text)
 
-        user_input_with_underscore = f'<u>{user_input_sentence}</u>'
+        if st.button("Generate"):
+            generated_text = m.generate_text(user_input_len_text)
 
-        st.write(f'Generated text: {user_input_with_underscore} {generated_text}')
+            st.divider()
+            
+            st.write(f'Generated text: {user_input_sentence} {generated_text}')
 
-        st.divider()
+            
 
 if __name__ == "__main__":
     main()
