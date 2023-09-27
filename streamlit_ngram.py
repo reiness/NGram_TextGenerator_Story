@@ -124,16 +124,14 @@ def create_ngram_model(n, path):
 def main():
     st.title("Ngram Text Generator")
 
-    st.divider()
-
-    user_input_ngram = st.number_input("Insert the number of n-grams :",key=int,step=1,value=3)
+    user_input_ngram = st.number_input("Insert the number of n-grams :",key=str,step=1,value=3)
 
     st.divider()
 
     if user_input_ngram:
         # start = time.time()
 
-        m = create_ngram_model({int(user_input_ngram)}, 'output.txt')
+        m = create_ngram_model({user_input_ngram}, 'output.txt')
 
         # st.write(f'Language Model creating time: {time.time() - start:.2f} seconds')
     
