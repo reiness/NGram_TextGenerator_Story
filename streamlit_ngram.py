@@ -29,7 +29,7 @@ def get_ngrams(n: int, tokens: list) -> list:
     # tokens.append('<END>')
     tokens = (n-1)*['<START>']+tokens
     l = [(tuple([tokens[i-p-1] for p in reversed(range(n-1))]), tokens[i])
-         for i in range(n-1, len(tokens))]
+        for i in range(n-1, len(tokens))]
     return l
 
 
