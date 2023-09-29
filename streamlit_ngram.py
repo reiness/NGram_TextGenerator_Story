@@ -134,13 +134,13 @@ def main():
 
     st.divider()
 
-    m = create_ngram_model(6, 'output.txt')
+    m = create_ngram_model(6, 'data_final.txt')
 
     user_input_sentence = st.text_input(
         "Enter the initial sentence :", key="sentence")
 
     user_input_len_text = st.number_input(
-        "Enter how many words are generated", key="length", step=1,value=25)
+        "Enter how many words are generated :", key="length", step=1, value=25)
 
     if st.button("Generate"):
         generated_text = m.generate_text(user_input_len_text)
