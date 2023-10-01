@@ -2,6 +2,7 @@ import streamlit as st
 import string
 import random
 from typing import List
+import math
 
 def tokenize(text: str) -> List[str]:
     """
@@ -17,7 +18,23 @@ def tokenize(text: str) -> List[str]:
     
     return tokens
 
+def perplexity(ngram_model, test_data):
+    """
+    Calculate perplexity for a given n-gram model and test data.
+    """
+    tokens = tokenize(test_data)
+    ngrams = get_ngrams(ngram_model.n, tokens)
+    log_prob_sum = 0
+    N = len(tokens)
 
+    for ngram in ngrams:
+        context, target_word = ngram
+        prob = ngram_model.prob(context, target_word)
+        if prob > 0:
+            log_prob_sum += math.log2(prob)
+
+    perplexity = 2 ** (-1 / N * log_prob_sum)
+    return perplexity
 
 def get_ngrams(n: int, tokens: list) -> list:
     """
@@ -135,23 +152,27 @@ def main():
 
     st.divider()
 
-    m = create_ngram_model(6, 'data_final.txt')
+    m = create_ngram_model(8, 'data_final.txt')
 
     user_input_sentence = st.text_input(
         "Enter the initial sentence :", key="sentence")
 
     user_input_len_text = st.number_input(
         "Enter how many words are generated :", key="length", step=1, value=25)
-
+    
     if st.button("Generate"):
         generated_text = m.generate_text(user_input_len_text)
+
+        # Calculate and display perplexity score
+        perplexity_score = perplexity(m, user_input_sentence + generated_text)
+        
 
         st.divider()
 
         st.markdown('Output :')
 
         st.success(f'{user_input_sentence} {generated_text}')
-
+        st.write(f'Perplexity Score: {perplexity_score:.2f}')
 
 if __name__ == "__main__":
     main()
