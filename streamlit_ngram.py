@@ -10,7 +10,6 @@ from textblob import TextBlob
 import subprocess
 cmd = ['python','-m','textblob.download_corpora']
 subprocess.run(cmd)
-print("Working")
 
 def tokenize(text: str) -> List[str]:
     """
