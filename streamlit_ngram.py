@@ -149,19 +149,22 @@ def create_ngram_model(n, path):
 
 
 def main():
-    st.title("Ngram Text Generator")
+    st.title("Fantasy Lore Generator")
+
+    image = 'fantasy1.jpeg'
+
+    st.image(image, caption=None, width=None, use_column_width=None, clamp=False, channels="RGB", output_format="auto")
 
     # user_input_ngram = st.number_input("Insert the number of n-grams :", key="ngram", step=1, value=3)
 
     st.divider()
 
-    
 
     user_input_sentence = st.text_input(
         "Enter the initial sentence :", key="sentence")
 
     user_input_len_text = st.number_input(
-        "Enter how many words are generated :", key="length", step=1, value=25)
+        "Enter how many words are generated :", key="length", step=1, value=10)
     
     ngram_order = len(user_input_sentence.split()) + user_input_len_text
 
@@ -182,8 +185,11 @@ def main():
 
         st.success(f'{user_input_sentence} {generated_text}')
 
-        st.write(f'Created with {ngram_order}','gram model')
-        st.write(f'Perplexity Score: {perplexity_score:.2f}')
+        st.text(f'Created with {ngram_order} gram model\nPerplexity Score: {perplexity_score:.2f}')
+
+
+        # st.write(f'Created with {ngram_order}','gram model')
+        # st.write(f'Perplexity Score: {perplexity_score:.2f}')
 
 if __name__ == "__main__":
     main()
