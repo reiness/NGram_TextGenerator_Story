@@ -18,7 +18,7 @@ def tokenize(text: str) -> List[str]:
 
     # Ganti karakter “ dan ” menjadi spasi
     text = text.replace("“", " ").replace("”", " ")
-    t = text.split()
+    t = text.lower().split()  # Konversi ke huruf kecil dan split menjadi token
     return t
 
 
