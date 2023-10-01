@@ -1,15 +1,7 @@
 import streamlit as st
 import string
 import random
-import time
 from typing import List
-from textblob import TextBlob
-
-# ideally we would use some smart text tokenizer, but for simplicity use this one
-
-import subprocess
-cmd = ['python','-m','textblob.download_corpora']
-subprocess.run(cmd)
 
 def tokenize(text: str) -> List[str]:
     """
@@ -17,16 +9,14 @@ def tokenize(text: str) -> List[str]:
     :return: tokenized sentence
     """
 
-    # Gunakan TextBlob untuk tokenisasi
-    blob = TextBlob(text)
+    # Menghapus tanda baca
+    text = text.translate(str.maketrans('', '', string.punctuation))
     
-    # Ambil daftar kata-kata yang telah di-token
-    tokens = blob.words
-    
-    # Ubah semua token menjadi huruf kecil
-    tokens = [token.lower() for token in tokens]
+    # Membagi teks menjadi token berdasarkan spasi
+    tokens = text.lower().split()
     
     return tokens
+
 
 
 def get_ngrams(n: int, tokens: list) -> list:
