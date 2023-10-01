@@ -10,8 +10,11 @@ def tokenize(text: str) -> List[str]:
     :return: tokenized sentence
     """
 
+    # Untuk menghapus " "
+    punctuation_chars = string.punctuation + '"'
+
     # Menghapus tanda baca
-    text = text.translate(str.maketrans('', '', string.punctuation))
+    text = text.translate(str.maketrans('', '', punctuation_chars))
     
     # Membagi teks menjadi token berdasarkan spasi
     tokens = text.lower().split()
@@ -152,7 +155,7 @@ def main():
 
     st.divider()
 
-    m = create_ngram_model(8, 'data_final.txt')
+    
 
     user_input_sentence = st.text_input(
         "Enter the initial sentence :", key="sentence")
@@ -160,7 +163,13 @@ def main():
     user_input_len_text = st.number_input(
         "Enter how many words are generated :", key="length", step=1, value=25)
     
+    ngram_order = len(user_input_sentence.split()) + user_input_len_text
+
     if st.button("Generate"):
+
+
+        m = create_ngram_model(ngram_order, 'data_final.txt')
+
         generated_text = m.generate_text(user_input_len_text)
 
         # Calculate and display perplexity score
@@ -172,6 +181,8 @@ def main():
         st.markdown('Output :')
 
         st.success(f'{user_input_sentence} {generated_text}')
+
+        st.write(f'Created with {ngram_order}','gram model')
         st.write(f'Perplexity Score: {perplexity_score:.2f}')
 
 if __name__ == "__main__":
