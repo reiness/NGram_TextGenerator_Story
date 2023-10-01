@@ -10,11 +10,9 @@ def tokenize(text: str) -> List[str]:
     :return: tokenized sentence
     """
 
-    # Untuk menghapus " "
-    punctuation_chars = string.punctuation + '"'
 
     # Menghapus tanda baca
-    text = text.translate(str.maketrans('', '', punctuation_chars))
+    text = text.translate(str.maketrans('', '', string.punctuation))
     
     # Membagi teks menjadi token berdasarkan spasi
     tokens = text.lower().split()
@@ -170,7 +168,7 @@ def main():
 
     if st.button("Generate"):
 
-
+        # ngram_order = 2
         m = create_ngram_model(ngram_order, 'data_final.txt')
 
         generated_text = m.generate_text(user_input_len_text)
