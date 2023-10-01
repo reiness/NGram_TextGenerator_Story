@@ -6,18 +6,24 @@ from typing import List
 # ideally we would use some smart text tokenizer, but for simplicity use this one
 
 
+import string
+from typing import List
+
 def tokenize(text: str) -> List[str]:
     """
     :param text: Takes input sentence
     :return: tokenized sentence
     """
-    for punct in string.punctuation:
-        text = text.replace(punct, ' '+punct+' ')
 
     text = text.replace("’", " ").replace("‘", " ")
 
     # Ganti karakter “ dan ” menjadi spasi
     text = text.replace("“", " ").replace("”", " ")
+    
+    # Menghapus tanda baca dengan mengganti mereka dengan spasi
+    for punct in string.punctuation:
+        text = text.replace(punct, ' ')
+
     t = text.lower().split()  # Konversi ke huruf kecil dan split menjadi token
     return t
 
