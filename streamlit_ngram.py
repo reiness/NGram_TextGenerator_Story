@@ -8,7 +8,7 @@ from textblob import TextBlob
 # ideally we would use some smart text tokenizer, but for simplicity use this one
 
 import subprocess
-cmd = ['python3','-m','textblob.download_corpora']
+cmd = ['python','-m','textblob.download_corpora']
 subprocess.run(cmd)
 print("Working")
 
