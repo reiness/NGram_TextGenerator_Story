@@ -1,23 +1,17 @@
 import streamlit as st
 import string
 import random
-from typing import List
 import math
+from typing import List
+from modeler import NgramModel, simple_NgramModel
+
 
 def tokenize(text: str) -> List[str]:
-    """
-    :param text: Takes input sentence
-    :return: tokenized sentence
-    """
-
-
-    # Menghapus tanda baca
+    # Remove punctuation and split text into tokens
     text = text.translate(str.maketrans('', '', string.punctuation))
-    
-    # Membagi teks menjadi token berdasarkan spasi
     tokens = text.lower().split()
-    
     return tokens
+
 
 def perplexity(ngram_model, test_data):
     """
@@ -38,36 +32,18 @@ def perplexity(ngram_model, test_data):
     return perplexity
 
 def get_ngrams(n: int, tokens: list) -> list:
-    """
-    :param n: n-gram size
-    :param tokens: tokenized sentence
-    :return: list of ngrams
-
-    ngrams of tuple form: ((previous wordS!), target word)
-    """
-    # tokens.append('<END>')
     tokens = (n-1)*['<START>']+tokens
     l = [(tuple([tokens[i-p-1] for p in reversed(range(n-1))]), tokens[i])
         for i in range(n-1, len(tokens))]
     return l
 
-
 class NgramModel(object):
-
     def __init__(self, n):
         self.n = n
-
-        # dictionary that keeps list of candidate words given context
         self.context = {}
-
-        # keeps track of how many times ngram has appeared in the text before
         self.ngram_counter = {}
 
     def update(self, sentence: str) -> None:
-        """
-        Updates Language Model
-        :param sentence: input text
-        """
         n = self.n
         ngrams = get_ngrams(n, tokenize(sentence))
         for ngram in ngrams:
@@ -83,25 +59,15 @@ class NgramModel(object):
                 self.context[prev_words] = [target_word]
 
     def prob(self, context, token):
-        """
-        Calculates probability of a candidate token to be generated given a context
-        :return: conditional probability
-        """
         try:
             count_of_token = self.ngram_counter[(context, token)]
             count_of_context = float(len(self.context[context]))
             result = count_of_token / count_of_context
-
         except KeyError:
             result = 0.0
         return result
 
     def random_token(self, context):
-        """
-        Given a context we "semi-randomly" select the next word to append in a sequence
-        :param context:
-        :return:
-        """
         r = random.random()
         map_to_probs = {}
         token_of_interest = self.context[context]
@@ -115,10 +81,6 @@ class NgramModel(object):
                 return token
 
     def generate_text(self, token_count: int):
-        """
-        :param token_count: number of words to be produced
-        :return: generated text
-        """
         n = self.n
         context_queue = (n - 1) * ['<START>']
         result = []
@@ -132,6 +94,10 @@ class NgramModel(object):
                 else:
                     context_queue.append(obj)
         return ' '.join(result)
+    
+
+
+
 
 
 def create_ngram_model(n, path):
@@ -140,12 +106,23 @@ def create_ngram_model(n, path):
         text = f.read()
         text = text.split('.')
         for sentence in text:
-            # add back the fullstop
             sentence += '.'
             m.update(sentence)
     return m
 
-
+def simple_probability(n, path):
+    """
+    Calculate simple probability based on word frequencies in the training data.
+    """
+    m = NgramModel(n)
+    with open(path, 'r', encoding='utf-8') as f:
+        text = f.read()
+        text = text.split('.')
+        for sentence in text:
+            sentence += '.'
+            m.update(sentence)
+    return m
+    
 def main():
     st.title("Fantasy Lore Generator")
 
@@ -153,42 +130,57 @@ def main():
 
     st.image(image, caption=None, width=None, use_column_width=None, clamp=False, channels="RGB", output_format="auto")
 
-    # user_input_ngram = st.number_input("Insert the number of n-grams :", key="ngram", step=1, value=3)
+    # Create a Streamlit navbar
+    page = st.sidebar.selectbox("Select a page:", ["Generate Fantasy Lore", "Simple Text Generator"])
 
-    st.divider()
+    if page == "Generate Fantasy Lore":
+        user_input_sentence = st.text_input("Enter the initial sentence:", key="sentence")
+        user_input_len_text = st.number_input("Enter how many words are generated:", key="length", step=1, value=10)
+        ngram_order = len(user_input_sentence.split()) + user_input_len_text
 
+        if st.button("Generate"):
+            m = create_ngram_model(ngram_order, 'data_final.txt')
+            generated_text = m.generate_text(user_input_len_text)
+            perplexity_score = perplexity(m, user_input_sentence + generated_text)
 
-    user_input_sentence = st.text_input(
-        "Enter the initial sentence :", key="sentence")
+            st.divider()
+            st.markdown('Output:')
+            st.success(f'{user_input_sentence} {generated_text}')
+            st.text(f'Created with {ngram_order} gram model\nPerplexity Score: {perplexity_score:.2f}')
 
-    user_input_len_text = st.number_input(
-        "Enter how many words are generated :", key="length", step=1, value=10)
-    
-    ngram_order = len(user_input_sentence.split()) + user_input_len_text
-    # ngram_order = 15
+    elif page == "Simple Text Generator":
+        user_input_words = st.text_input("Enter your words (space-separated):", key="input_words")
+        user_input_len_text = st.number_input("Enter how many words to generate:", key="gen_length", step=1, value=10)
 
-    if st.button("Generate"):
+        if st.button("Generate"):
+            input_words = user_input_words.split()
+            if len(input_words) >= 2:
+                context = tuple(input_words[-2:])
+                
+                ngram_order = 3  # trigram
+                m = simple_probability(ngram_order, 'data_final.txt')
+                generated_text = input_words[:]  # Start with input words
 
-        # ngram_order = 2
-        m = create_ngram_model(ngram_order, 'data_final.txt')
+                for _ in range(user_input_len_text):
+                    next_word = m.random_token(context)
+                    generated_text.append(next_word)
+                    if next_word == '.':
+                        context = tuple(input_words[-2:])
+                    else:
+                        context = (context[-1], next_word)
 
-        generated_text = m.generate_text(user_input_len_text)
+                generated_text = ' '.join(generated_text)
 
-        # Calculate and display perplexity score
-        perplexity_score = perplexity(m, user_input_sentence + generated_text)
-        
+                # Calculate simple probability-based perplexity
+                perplexity_score = perplexity(m, generated_text)
 
-        st.divider()
+                st.divider()
+                st.markdown('Output:')
+                st.success(generated_text)
+                st.text(f'Created with {ngram_order} gram model\nPerplexity Score: {perplexity_score:.2f}')
 
-        st.markdown('Output :')
-
-        st.success(f'{user_input_sentence} {generated_text}')
-
-        st.text(f'Created with {ngram_order} gram model\nPerplexity Score: {perplexity_score:.2f}')
-
-
-        # st.write(f'Created with {ngram_order}','gram model')
-        # st.write(f'Perplexity Score: {perplexity_score:.2f}')
+    else:
+        st.error("Please enter at least two words for text generation.")
 
 if __name__ == "__main__":
     main()
