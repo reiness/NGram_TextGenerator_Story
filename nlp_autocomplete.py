@@ -3,7 +3,7 @@ import string
 import random
 import math
 from typing import List
-from modeler import NgramModel, simple_NgramModel
+
 
 
 def tokenize(text: str) -> List[str]:
@@ -36,6 +36,92 @@ def get_ngrams(n: int, tokens: list) -> list:
     l = [(tuple([tokens[i-p-1] for p in reversed(range(n-1))]), tokens[i])
         for i in range(n-1, len(tokens))]
     return l
+
+class simple_NgramModel(object):
+
+    def __init__(self, n):
+        self.n = n
+
+        # dictionary that keeps list of candidate words given context
+        self.context = {}
+
+        # keeps track of how many times ngram has appeared in the text before
+        self.ngram_counter = {}
+
+    def update(self, sentence: str) -> None:
+        """
+        Updates Language Model
+        :param sentence: input text
+        """
+        n = self.n
+        ngrams = get_ngrams(n, tokenize(sentence))
+        for ngram in ngrams:
+            if ngram in self.ngram_counter:
+                self.ngram_counter[ngram] += 1.0
+            else:
+                self.ngram_counter[ngram] = 1.0
+
+            prev_words, target_word = ngram
+            if prev_words in self.context:
+                self.context[prev_words].append(target_word)
+            else:
+                self.context[prev_words] = [target_word]
+
+    def prob(self, context, token):
+        """
+        Calculates probability of a candidate token to be generated given a context
+        :return: conditional probability
+        """
+        try:
+            count_of_token = self.ngram_counter[(context, token)]
+            count_of_context = float(len(self.context[context]))
+            result = count_of_token / count_of_context
+
+        except KeyError:
+            result = 0.0
+        return result
+
+    def random_token(self, context):
+        """
+        untuk simpel random !
+        
+        """
+        token_of_interest = self.context[context]
+
+        # Collect the counts of all possible tokens in the context
+        counts = [self.ngram_counter[(context, token)] for token in token_of_interest]
+
+        # Calculate the total count of tokens in the context
+        total_count = sum(counts)
+
+        # Calculate the probability of each token based on counts
+        probabilities = [count / total_count for count in counts]
+
+        # Use the calculated probabilities for weighted random selection
+        selected_token = random.choices(token_of_interest, probabilities)[0]
+
+        return selected_token
+
+    def generate_text(self, token_count: int):
+        """
+        :param token_count: number of words to be produced
+        :return: generated text
+        """
+        n = self.n
+        context_queue = (n - 1) * ['<START>']
+        result = []
+        for _ in range(token_count):
+            obj = self.random_token(tuple(context_queue))
+            result.append(obj)
+            if n > 1:
+                context_queue.pop(0)
+                if obj == '.':
+                    context_queue = (n - 1) * ['<START>']
+                else:
+                    context_queue.append(obj)
+        return ' '.join(result)
+
+
 
 class NgramModel(object):
     def __init__(self, n):
@@ -94,10 +180,6 @@ class NgramModel(object):
                 else:
                     context_queue.append(obj)
         return ' '.join(result)
-    
-
-
-
 
 
 def create_ngram_model(n, path):
@@ -114,7 +196,7 @@ def simple_probability(n, path):
     """
     Calculate simple probability based on word frequencies in the training data.
     """
-    m = NgramModel(n)
+    m = simple_NgramModel(n)
     with open(path, 'r', encoding='utf-8') as f:
         text = f.read()
         text = text.split('.')
@@ -126,14 +208,15 @@ def simple_probability(n, path):
 def main():
     st.title("Fantasy Lore Generator")
 
-    image = 'fantasy1.jpeg'
-
-    st.image(image, caption=None, width=None, use_column_width=None, clamp=False, channels="RGB", output_format="auto")
 
     # Create a Streamlit navbar
-    page = st.sidebar.selectbox("Select a page:", ["Generate Fantasy Lore", "Simple Text Generator"])
+    page = st.sidebar.selectbox("Style :", ["MLE-Based Fantasy", "Simple Fantasy"])
 
-    if page == "Generate Fantasy Lore":
+    if page == "MLE-Based Fantasy":
+        mle_image = 'fantasy1.jpeg'
+        st.image(mle_image, caption=None, width=None, use_column_width=None, clamp=False, channels="RGB", output_format="auto")
+        st.title("_MLE Style_")
+
         user_input_sentence = st.text_input("Enter the initial sentence:", key="sentence")
         user_input_len_text = st.number_input("Enter how many words are generated:", key="length", step=1, value=10)
         ngram_order = len(user_input_sentence.split()) + user_input_len_text
@@ -148,7 +231,12 @@ def main():
             st.success(f'{user_input_sentence} {generated_text}')
             st.text(f'Created with {ngram_order} gram model\nPerplexity Score: {perplexity_score:.2f}')
 
-    elif page == "Simple Text Generator":
+    elif page == "Simple Fantasy":
+
+        simple_image = 'fantasy2.jpg'
+        st.image(simple_image, caption=None, width=None, use_column_width=None, clamp=False, channels="RGB", output_format="auto")
+        st.title("_Simple Style_")
+
         user_input_words = st.text_input("Enter your words (space-separated):", key="input_words")
         user_input_len_text = st.number_input("Enter how many words to generate:", key="gen_length", step=1, value=10)
 
@@ -177,7 +265,7 @@ def main():
                 st.divider()
                 st.markdown('Output:')
                 st.success(generated_text)
-                st.text(f'Created with {ngram_order} gram model\nPerplexity Score: {perplexity_score:.2f}')
+                st.text(f'Created with simple probabilistic {ngram_order} gram model\nPerplexity Score: {perplexity_score:.2f}')
 
     else:
         st.error("Please enter at least two words for text generation.")
