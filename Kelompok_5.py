@@ -4,7 +4,7 @@ import random
 import math
 from typing import List
 import pickle
-import time
+
 
 def tokenize(text: str) -> List[str]:
     # Remove punctuation and split text into tokens
@@ -205,11 +205,11 @@ def simple_probability(n, path):
             m.update(sentence)
     return m
 
-
 def load_ngram_model(n):
     model_path = f"models/ngram_model_{n}.pkl"
     with open(model_path, 'rb') as model_file:
         return pickle.load(model_file)
+
 
 def main():
     st.title("Fantasy Lore Generator")
@@ -228,18 +228,15 @@ def main():
         ngram_order = len(user_input_sentence.split()) + user_input_len_text
         # ngram_order = 15
         if st.button("Generate"):
-            start_time = time.time()  
             m = load_ngram_model(ngram_order)
+            # m = create_ngram_model(ngram_order, 'data_final.txt')
             generated_text = m.generate_text(user_input_len_text)
             perplexity_score = perplexity(m, user_input_sentence + generated_text)
-            end_time = time.time()  
-            runtime = end_time - start_time  # Calculate the runtime
 
             st.divider()
             st.markdown('Output:')
             st.success(f'{user_input_sentence} {generated_text}')
             st.text(f'Created with {ngram_order} gram model\nPerplexity Score: {perplexity_score:.2f}')
-            st.text(f'Runtime: {runtime:.2f} seconds')  
 
     elif page == "Simple Fantasy":
 
@@ -255,11 +252,13 @@ def main():
             if len(input_words) >= 2:
                 context = tuple(input_words[-2:])
                 
-                # Load the trigram model from the models folder
                 ngram_order = 3  # trigram
                 model_path = f"models/simple_model_trigram.pkl"
+
                 with open(model_path, 'rb') as model_file:
                     m = pickle.load(model_file)
+                # m = simple_probability(ngram_order, 'data_final.txt')
+                generated_text = input_words[:]  # Start with input words
 
                 for _ in range(user_input_len_text):
                     next_word = m.random_token(context)
