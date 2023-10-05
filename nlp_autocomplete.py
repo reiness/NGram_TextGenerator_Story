@@ -219,8 +219,8 @@ def main():
 
         user_input_sentence = st.text_input("Enter the initial sentence:", key="sentence")
         user_input_len_text = st.number_input("Enter how many words are generated:", key="length", step=1, value=10)
-        ngram_order = len(user_input_sentence.split()) + user_input_len_text
-
+        # ngram_order = len(user_input_sentence.split()) + user_input_len_text
+        ngram_order = 15
         if st.button("Generate"):
             m = create_ngram_model(ngram_order, 'data_final.txt')
             generated_text = m.generate_text(user_input_len_text)
